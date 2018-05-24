@@ -1,0 +1,9 @@
+<form method="post" action="{% url 'polls:login' %}">
+    {% csrf_token %}
+    {{ form.non_field_errors }}
+    {{ form.errors.username }}
+    {{ form.username }}
+    {{ form.errors.password }}
+    {{ form.password }}
+    <input type="submit" value="Login">
+</form>

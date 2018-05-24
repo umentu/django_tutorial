@@ -1,0 +1,120 @@
+<html>
+<head>
+
+</head>
+<body>
+
+<h1>{{ question.question_text }}</h1>
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
+
+<img src="/media/{{ question.image_url }}" />
+
+<div>
+    画像の投稿
+    <form action="{% url 'polls:upload_image' question.id %}" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ image_form }}
+        <input type="submit" name="upload" />
+    </form>
+</div>
+
+<div>
+    Choiceの追加
+    <form action="{% url 'polls:add_choice' question.id %}" method="post">
+        {% csrf_token %}
+        {{ choice_form }}
+        <input type="submit" value="add" />
+    </form>
+</div>
+
+<div>
+    <form action="{% url 'polls:vote' question.id %}" method="post">
+    {% csrf_token %}
+    {% for choice in question.choice_set.all %}
+        <input type="radio" name="choice" id="choice{{ forloop.counter }}" value="{{ choice.id }}" />
+        <label for="choice{{ forloop.counter }}">{{ choice.choice_text }}</label><br />
+    {% endfor %}
+    <input type="submit" value="Vote" />
+    </form>
+</div>
+
+<div>
+    <table>
+        <caption>一覧</caption>
+        <tr>
+            <th>choice_text</th>
+            <th>votes</th>
+            <th>rates</th>
+        </tr>
+
+        {% for choice in choice_list %}
+        <tr>
+            <td>
+                {{choice.choice_text}}
+            </td>
+            <td>
+                {{choice.votes}}
+            </td>
+            <td>
+                {{ choice.rate }}
+            </td>
+        </tr>
+
+        {% endfor %}
+    </table>
+
+    <table>
+        <tr>
+            <td>総投票数</td>
+            <td>{{total}}</td>
+        </tr>
+    </table>
+
+</div>
+
+<div>
+    <canvas id="canvas_1" width="200px" height="50px"></canvas>
+    <canvas id="canvas_2" width="200px" height="50px"></canvas>
+
+</div>
+
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.2/Chart.min.js"></script>
+
+<script type="text/javascript">
+    var ctx_1 = document.getElementById("canvas_1").getContext("2d");
+    var label_1 = [ {% for choice in choice_list %} "{{ choice.choice_text }}", {% endfor %}];
+    var data_1 = [ {% for choice in choice_list %} {{choice.votes}}, {% endfor %} ];
+
+    var chart_1 = new Chart(ctx_1, {
+        type: "horizontalBar",
+        data: {
+            labels: label_1,
+            datasets: [{
+                label: "votes数",
+                data: data_1,
+            }],
+        }
+    });
+    
+    var ctx_2 = document.getElementById("canvas_2").getContext("2d");
+    var label_2 = [ {% for choice in choice_list %} "{{ choice.choice_text }}", {% endfor %}];
+    var data_2 = [ {% for choice in choice_list %} {{choice.votes}}, {% endfor %} ];
+
+    var chart_2 = new Chart(ctx_2, {
+        type: "pie",
+        data: {
+            labels: label_2,
+            datasets: [{
+                label: "votes数",
+                data: data_2,
+            }],
+        }
+    });
+
+</script>
+
+</body>
+</html>
